@@ -12,5 +12,5 @@ layout: default
 
 ## 网络篇
 
-* [iptables 和 nf_conntrack 的纠缠](docs/net/iptables-and-nf_conntrack.md)
+* [iptables 和 nf_conntrack 的纠缠](iptables-and-nf_conntrack.md)
 * 
