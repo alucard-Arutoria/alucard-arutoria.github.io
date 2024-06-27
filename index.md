@@ -12,4 +12,4 @@ layout: default
 
 ## 目录
 
-* [网络篇](docs/net/index.md)
+* [网络篇](docs/net/)
