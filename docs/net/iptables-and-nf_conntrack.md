@@ -15,7 +15,7 @@
 ### nf_conntrack
 nf_conntrack 是内核中的连接追踪模块，用于记录每个连接的状态信息。状态信息数据结构是一个开链的 hash 表，每个 hash 节点存储一个双链表。相同 hash 值的连接放到同一个双链表中，示例如下：
 
-![image](https://github.com/alucard-Arutoria/alucard-arutoria.github.io/assets/51264332/e7126b69-59f6-4da1-b3db-95544e777dd5)
+![image](../../assets/appendix/nf_conntrack状态数据结构.png)
 
 模块中有两个重要参数：
 * nf_conntrack_buckets：hash 表大小（即节点数）
