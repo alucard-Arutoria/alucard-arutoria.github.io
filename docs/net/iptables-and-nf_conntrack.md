@@ -5,7 +5,7 @@
 
 故事，就从这里开始。
 
-## 初见
+## table full 请求丢包
 ### 现象
 压测，是任何系统上线前必不可少的检测步骤。压测刚开始时，请求量不高，服务器的 CPU、内存等资源的使用率、负载指标，以及请求失败率、延时等业务指标一切正常。但随着压测进行，请求量上涨，此时观察到请求失败率出现突增。
 
@@ -57,12 +57,36 @@ nf_conntrack_max = 262144
 # iptables -L -v
 ACCEPT     all  --  any    any     anywhere             anywhere            state RELATED,ESTABLISHED
 ```
-至此，问题明确：**由于 iptables 开启状态记录，且压测请求量高于 nf_conntrack_max 参数值，导致 nf_conntrack 模块随机丢包，进而导致客户端请求超时率上涨。**
+至此，问题明确：**由于 iptables 开启状态记录，且压测请求量高于 nf_conntrack_max 参数值，导致 nf_conntrack 模块随机丢包，进而导致客户端请求超时率上涨。** 在主机 CPU、内存资源充足的条件下，可以通过调大 nf_conntrack_max 参数修复问题。具体操作如下：
+* 立即生效：执行下述命令，重启后失效
+    ```bash
+    sysctl -w net.netfilter.nf_conntrack_max=1048576
+    ```
+* 永久生效：在 /etc/sysctl.conf 或/etc/sysctl.d/xxx.conf（根据操作系统版本选择）中，修改下述内容
+    ```bash
+    net.netfilter.nf_conntrack_max=1048576写
+    ```
+    修改后执行下述命令，使修改生效
+    ```bash
+    sysctl -p
+    ```
 
-### 参考
+## nf_conntrack_max 被重置回默认值
+### 现象
+上一节提到，可以通过修改 nf_conntrack_max 配置大小，解决“table full 请求丢包”的问题，并且也提供了 nf_conntrack_max 配置永久生效的方法。
 
-[你真的了解nf_conntrack么？](https://blog.51cto.com/u_15293891/3290232)
+但在容灾演练时，通过重启主机模拟机房断电恢复场景，Nginx 进程恢复后，观察到业务请求超时率依旧未完全恢复。检查后发现，日志中又再次出现“table full”，且 nf_conntrack_max 被重置为默认值。经过排查定位，最终确认 nf_conntrack_max 被重置，和 iptables 重启有关
 
-[nf_conntrack 调优](https://www.haxi.cc/archives/nf_conntrack%E8%B0%83%E4%BC%98.html)
+### service iptables stop
 
-## 再相逢
+### service iptables start
+
+## nf_conntrack 卸载失败
+
+## 解除纠缠
+
+## 参考
+
+* [你真的了解nf_conntrack么？](https://blog.51cto.com/u_15293891/3290232)
+* [nf_conntrack 调优](https://www.haxi.cc/archives/nf_conntrack%E8%B0%83%E4%BC%98.html)
+
